@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="description" content="2048: Merge Master - Addictive number puzzle game. Swipe to merge tiles and reach the highest score!">
+
+    <title>2048: Merge Master</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+</head>
+<body>
+    <!-- Start Screen (Grid Size Selection) -->
+    <div class="start-screen active" id="start-screen">
+        <div class="start-content">
+            <h1 class="start-title">2048</h1>
+            <h2 class="start-subtitle">MERGE MASTER</h2>
+
+            <!-- Tutorial Demo -->
+            <div class="tutorial-demo">
+                <div class="demo-grid">
+                    <div class="demo-cell"></div>
+                    <div class="demo-cell"></div>
+                    <div class="demo-cell"></div>
+                    <div class="demo-cell"></div>
+                    <div class="demo-tile demo-tile-2 tile-pos-0">2</div>
+                    <div class="demo-tile demo-tile-2 tile-pos-1">2</div>
+                    <div class="demo-tile demo-tile-4 tile-pos-2">4</div>
+                </div>
+                <p class="demo-text">Swipe to merge tiles!</p>
+            </div>
+
+            <p class="start-instruction">Choose Grid Size:</p>
+
+            <div class="grid-options">
+                <button class="grid-option" data-size="3">3×3</button>
+                <button class="grid-option selected" data-size="4">4×4</button>
+                <button class="grid-option" data-size="5">5×5</button>
+                <button class="grid-option" data-size="6">6×6</button>
+                <button class="grid-option" data-size="8">8×8</button>
+            </div>
+
+            <button class="btn btn-start" id="start-btn">START GAME</button>
+
+            <div class="start-footer">
+                <p>Swipe or use arrow keys to merge tiles</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div class="container" id="game-screen">
+        <!-- Header -->
+        <header class="header">
+            <div class="title-section">
+                <h1 class="title">2048</h1>
+                <span class="title-sub">MERGE MASTER</span>
+            </div>
+            <div class="scores">
+                <div class="score-box">
+                    <span class="score-label">SCORE</span>
+                    <span class="score-value" id="score">0</span>
+                </div>
+                <div class="score-box">
+                    <span class="score-label">BEST</span>
+                    <span class="score-value" id="best-score">0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="action-btn" id="home-btn" title="Home">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
+                <span>Home</span>
+            </button>
+            <button class="action-btn" id="undo-btn" title="Undo">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/>
+                </svg>
+                <span>Undo</span>
+            </button>
+            <button class="action-btn" id="sound-btn" title="Sound">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" id="sound-icon-on">
+                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                </svg>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" id="sound-icon-off" style="display:none;">
+                    <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+                </svg>
+                <span>Sound</span>
+            </button>
+            <button class="action-btn" id="share-btn" title="Share">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/>
+                </svg>
+                <span>Share</span>
+            </button>
+            <button class="action-btn" id="rate-btn" title="Rate">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                </svg>
+                <span>Rate</span>
+            </button>
+            <button class="action-btn" id="highscore-btn" title="Highscores">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path d="M7.5 21H2V9h5.5v12zm7.25-18h-5.5v18h5.5V3zM22 11h-5.5v10H22V11z"/>
+                </svg>
+                <span>Scores</span>
+            </button>
+        </div>
+
+        <!-- Game Board -->
+        <div class="game-wrapper">
+            <div class="game-container" id="game-container">
+                <div class="grid-background" id="grid-background"></div>
+                <div class="tile-container" id="tile-container"></div>
+
+            <!-- Game Over Overlay -->
+            <div class="game-overlay" id="game-over">
+                <div class="overlay-content">
+                    <h2>Game Over!</h2>
+                    <p>Score: <span id="final-score">0</span></p>
+                    <button class="btn" onclick="game.restart()">Try Again</button>
+                    <button class="btn btn-secondary" onclick="game.backToMenu()">Menu</button>
+                </div>
+            </div>
+
+            <!-- Win Overlay -->
+            <div class="game-overlay" id="game-win">
+                <div class="overlay-content win">
+                    <h2>You Win!</h2>
+                    <p>You reached 2048!</p>
+                    <button class="btn" onclick="game.continueGame()">Continue</button>
+                    <button class="btn btn-secondary" onclick="game.restart()">New Game</button>
+                </div>
+            </div>
+
+            <!-- Pause/Home Overlay -->
+            <div class="game-overlay" id="game-pause">
+                <div class="overlay-content pause">
+                    <h2>Paused</h2>
+                    <p>Score: <span id="pause-score">0</span></p>
+                    <button class="btn" onclick="game.resumeGame()">RESUME</button>
+                    <button class="btn btn-secondary" onclick="game.startNewFromPause()">START NEW GAME</button>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <!-- How to Play -->
+        <div class="how-to-play">
+            <p><strong>Swipe</strong> or use <strong>Arrow Keys</strong> to merge tiles!</p>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>2048: Merge Master</p>
+        </footer>
+    </div>
+
+    <!-- Leaderboard Modal -->
+    <div class="leaderboard-modal" id="leaderboard-modal">
+        <div class="leaderboard-content">
+            <div class="leaderboard-header">
+                <h2>Highscores</h2>
+                <button class="leaderboard-close" id="leaderboard-close">&times;</button>
+            </div>
+
+            <!-- Friends / Global Toggle -->
+            <div class="leaderboard-toggle">
+                <button class="toggle-btn active" data-type="global">Global</button>
+                <button class="toggle-btn" data-type="personal">My Scores</button>
+            </div>
+
+            <!-- Grid Size Tabs -->
+            <div class="grid-tabs">
+                <button class="grid-tab" data-grid="3">3×3</button>
+                <button class="grid-tab active" data-grid="4">4×4</button>
+                <button class="grid-tab" data-grid="5">5×5</button>
+                <button class="grid-tab" data-grid="6">6×6</button>
+                <button class="grid-tab" data-grid="8">8×8</button>
+            </div>
+
+            <!-- Scores List -->
+            <div class="scores-list" id="scores-list">
+                <div class="score-loading">
+                    <p>Sign in to view leaderboards</p>
+                    <button class="btn" id="signin-btn">Sign In</button>
+                </div>
+            </div>
+
+            <!-- Player's Best Score -->
+            <div class="player-score" id="player-score">
+                <span class="player-label">Your Best:</span>
+                <span class="player-value" id="player-best">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resume Modal -->
+    <div class="resume-modal" id="resume-modal">
+        <div class="resume-content">
+            <h2>Welcome Back!</h2>
+            <p class="resume-info">You have a saved <span id="resume-grid-size">4x4</span> game</p>
+            <p class="resume-score-info">Score: <strong id="resume-saved-score">0</strong></p>
+            <div class="resume-buttons">
+                <button class="btn btn-resume" id="resume-btn">Resume Game</button>
+                <button class="btn btn-secondary" id="resume-new-btn">New Game</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Script -->
+    <script src="game.js"></script>
+</body>
+</html>

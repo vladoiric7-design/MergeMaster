@@ -274,6 +274,7 @@ class Game {
 
     // Start new game from pause menu
     startNewFromPause() {
+        this.submitIfBest();
         Game.clearSavedGame();
         this.gamePauseOverlay.classList.remove('active');
         document.getElementById('game-screen').classList.remove('active');

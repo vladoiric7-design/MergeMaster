@@ -824,12 +824,12 @@ const GameServices = {
                 // 6. Go to Firestore Database > Create database (start in test mode)
                 // ============================================================
                 const firebaseConfig = {
-                    apiKey: "YOUR_API_KEY",
-                    authDomain: "YOUR_PROJECT.firebaseapp.com",
-                    projectId: "YOUR_PROJECT_ID",
-                    storageBucket: "YOUR_PROJECT.appspot.com",
-                    messagingSenderId: "YOUR_SENDER_ID",
-                    appId: "YOUR_APP_ID"
+                    apiKey: "AIzaSyDGL6qLoaDy7b2wawJgFzFCp3EjJDh7v4I",
+                    authDomain: "merge-master-758475.firebaseapp.com",
+                    projectId: "merge-master-758475",
+                    storageBucket: "merge-master-758475.firebasestorage.app",
+                    messagingSenderId: "907658519254",
+                    appId: "1:907658519254:web:cdfe22e8af1d37beefdf77"
                 };
 
                 if (!firebase.apps.length) {

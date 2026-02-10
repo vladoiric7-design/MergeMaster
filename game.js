@@ -239,8 +239,16 @@ class Game {
         this.hideOverlays();
     }
 
+    // Submit current score to leaderboard if it's the best so far
+    submitIfBest() {
+        if (this.score > 0 && this.score >= this.bestScore && GameServices.isSignedIn) {
+            GameServices.submitScore(this.size, this.score);
+        }
+    }
+
     // Back to menu
     backToMenu() {
+        this.submitIfBest();
         this.saveGameState();
         document.getElementById('game-screen').classList.remove('active');
         document.getElementById('start-screen').classList.add('active');
@@ -754,18 +762,21 @@ if ('serviceWorker' in navigator) {
 // Auto-save on visibility change / page close
 document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden' && game && !game.over) {
+        game.submitIfBest();
         game.saveGameState();
     }
 });
 
 window.addEventListener('beforeunload', () => {
     if (game && !game.over) {
+        game.submitIfBest();
         game.saveGameState();
     }
 });
 
 window.addEventListener('pagehide', () => {
     if (game && !game.over) {
+        game.submitIfBest();
         game.saveGameState();
     }
 });

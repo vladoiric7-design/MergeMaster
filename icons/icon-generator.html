@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Merge Master - Icon Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #333;
+            color: white;
+        }
+        h1 { text-align: center; }
+        .icons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+        }
+        .icon-box {
+            text-align: center;
+            background: #444;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .icon-box p {
+            margin: 10px 0 0 0;
+            font-size: 14px;
+        }
+        canvas {
+            border-radius: 20%;
+            display: block;
+            margin: 0 auto;
+        }
+        .download-btn {
+            margin-top: 10px;
+            padding: 8px 16px;
+            background: #f39c12;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .download-btn:hover {
+            background: #e74c3c;
+        }
+        .instructions {
+            max-width: 600px;
+            margin: 30px auto;
+            background: #444;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .instructions h2 {
+            color: #f39c12;
+        }
+        .instructions ol {
+            padding-left: 20px;
+        }
+        .instructions li {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Merge Master - App Icons</h1>
+
+    <div class="instructions">
+        <h2>How to Download Icons:</h2>
+        <ol>
+            <li>Click the <strong>"Download"</strong> button under each icon</li>
+            <li>Save all icons to the <strong>MergeMaster/icons</strong> folder</li>
+            <li>Icons are automatically named correctly</li>
+        </ol>
+    </div>
+
+    <div class="icons" id="icons"></div>
+
+    <script>
+        const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+
+        function drawIcon(canvas, size) {
+            const ctx = canvas.getContext('2d');
+            const s = size;
+            canvas.width = s;
+            canvas.height = s;
+
+            // Background gradient
+            const bgGrad = ctx.createLinearGradient(0, 0, s, s);
+            bgGrad.addColorStop(0, '#1a1a2e');
+            bgGrad.addColorStop(0.5, '#16213e');
+            bgGrad.addColorStop(1, '#0f3460');
+
+            // Draw rounded rectangle background
+            const radius = s * 0.18;
+            ctx.beginPath();
+            ctx.moveTo(radius, 0);
+            ctx.lineTo(s - radius, 0);
+            ctx.quadraticCurveTo(s, 0, s, radius);
+            ctx.lineTo(s, s - radius);
+            ctx.quadraticCurveTo(s, s, s - radius, s);
+            ctx.lineTo(radius, s);
+            ctx.quadraticCurveTo(0, s, 0, s - radius);
+            ctx.lineTo(0, radius);
+            ctx.quadraticCurveTo(0, 0, radius, 0);
+            ctx.closePath();
+            ctx.fillStyle = bgGrad;
+            ctx.fill();
+
+            // Grid settings
+            const padding = s * 0.1;
+            const gridSize = s - (padding * 2);
+            const cellSize = gridSize / 4;
+            const gap = s * 0.015;
+            const cellInner = cellSize - gap;
+            const cellRadius = s * 0.02;
+
+            // Draw grid cells (background)
+            ctx.fillStyle = 'rgba(255,255,255,0.1)';
+            for (let row = 0; row < 4; row++) {
+                for (let col = 0; col < 4; col++) {
+                    const x = padding + col * cellSize + gap/2;
+                    const y = padding + row * cellSize + gap/2;
+                    roundRect(ctx, x, y, cellInner, cellInner, cellRadius);
+                    ctx.fill();
+                }
+            }
+
+            // Tile data: [row, col, value, bgColor, textColor]
+            const tiles = [
+                [0, 0, '2', '#eee4da', '#776e65'],
+                [0, 2, '8', '#f2b179', '#f9f6f2'],
+                [1, 1, '4', '#ede0c8', '#776e65'],
+                [2, 0, '32', '#f67c5f', '#f9f6f2'],
+                [2, 3, '16', '#f59563', '#f9f6f2'],
+                [3, 1, '2048', 'gradient', '#f9f6f2'],
+            ];
+
+            // Draw tiles
+            tiles.forEach(([row, col, value, bgColor, textColor]) => {
+                const x = padding + col * cellSize + gap/2;
+                const y = padding + row * cellSize + gap/2;
+
+                ctx.beginPath();
+                roundRect(ctx, x, y, cellInner, cellInner, cellRadius);
+
+                if (bgColor === 'gradient') {
+                    const grad = ctx.createLinearGradient(x, y, x + cellInner, y + cellInner);
+                    grad.addColorStop(0, '#f39c12');
+                    grad.addColorStop(1, '#e74c3c');
+                    ctx.fillStyle = grad;
+                } else {
+                    ctx.fillStyle = bgColor;
+                }
+                ctx.fill();
+
+                // Text
+                ctx.fillStyle = textColor;
+                let fontSize = cellInner * 0.5;
+                if (value.length >= 3) fontSize = cellInner * 0.35;
+                if (value.length >= 4) fontSize = cellInner * 0.28;
+                ctx.font = `bold ${fontSize}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(value, x + cellInner/2, y + cellInner/2 + fontSize * 0.05);
+            });
+        }
+
+        function roundRect(ctx, x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+        }
+
+        function downloadIcon(canvas, size) {
+            const link = document.createElement('a');
+            link.download = `icon-${size}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // Generate all icons
+        const container = document.getElementById('icons');
+        sizes.forEach(size => {
+            const box = document.createElement('div');
+            box.className = 'icon-box';
+
+            const canvas = document.createElement('canvas');
+            drawIcon(canvas, size);
+
+            const label = document.createElement('p');
+            label.textContent = `${size} x ${size}`;
+
+            const btn = document.createElement('button');
+            btn.className = 'download-btn';
+            btn.textContent = 'Download';
+            btn.onclick = () => downloadIcon(canvas, size);
+
+            box.appendChild(canvas);
+            box.appendChild(label);
+            box.appendChild(btn);
+            container.appendChild(box);
+        });
+    </script>
+</body>
+</html>

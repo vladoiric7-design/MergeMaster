@@ -125,7 +125,10 @@ class Game {
 
     init() {
         this.buildGrid();
-        this.setupInput();
+        if (!Game.inputInitialized) {
+            this.setupInput();
+            Game.inputInitialized = true;
+        }
         this.updateBestScore();
         this.startGame();
     }
@@ -338,36 +341,37 @@ class Game {
         this.grid[cell.row][cell.col] = value;
     }
 
-    // Setup keyboard and touch input
+    // Setup keyboard and touch input (called once, uses global `game` reference)
     setupInput() {
         // Keyboard
         document.addEventListener('keydown', (e) => {
             SoundManager.unlock();
-            if (this.over && !this.keepPlaying) return;
+            if (!game) return;
+            if (game.over && !game.keepPlaying) return;
             if (!document.getElementById('game-screen').classList.contains('active')) return;
 
             let moved = false;
             switch (e.key) {
                 case 'ArrowUp':
                     e.preventDefault();
-                    moved = this.move('up');
+                    moved = game.move('up');
                     break;
                 case 'ArrowDown':
                     e.preventDefault();
-                    moved = this.move('down');
+                    moved = game.move('down');
                     break;
                 case 'ArrowLeft':
                     e.preventDefault();
-                    moved = this.move('left');
+                    moved = game.move('left');
                     break;
                 case 'ArrowRight':
                     e.preventDefault();
-                    moved = this.move('right');
+                    moved = game.move('right');
                     break;
             }
 
             if (moved) {
-                this.afterMove();
+                game.afterMove();
             }
         });
 
@@ -386,7 +390,8 @@ class Game {
         }, { passive: true });
 
         gameContainer.addEventListener('touchend', (e) => {
-            if (this.over && !this.keepPlaying) return;
+            if (!game) return;
+            if (game.over && !game.keepPlaying) return;
 
             touchEndX = e.changedTouches[0].clientX;
             touchEndY = e.changedTouches[0].clientY;
@@ -400,23 +405,23 @@ class Game {
             if (Math.abs(deltaX) > Math.abs(deltaY)) {
                 if (Math.abs(deltaX) > minSwipe) {
                     if (deltaX > 0) {
-                        moved = this.move('right');
+                        moved = game.move('right');
                     } else {
-                        moved = this.move('left');
+                        moved = game.move('left');
                     }
                 }
             } else {
                 if (Math.abs(deltaY) > minSwipe) {
                     if (deltaY > 0) {
-                        moved = this.move('down');
+                        moved = game.move('down');
                     } else {
-                        moved = this.move('up');
+                        moved = game.move('up');
                     }
                 }
             }
 
             if (moved) {
-                this.afterMove();
+                game.afterMove();
             }
         }, { passive: true });
 
@@ -425,11 +430,11 @@ class Game {
         }, { passive: false });
 
         // Action buttons
-        document.getElementById('home-btn').addEventListener('click', () => this.showPauseMenu());
-        document.getElementById('undo-btn').addEventListener('click', () => this.undo());
+        document.getElementById('home-btn').addEventListener('click', () => game.showPauseMenu());
+        document.getElementById('undo-btn').addEventListener('click', () => game.undo());
         document.getElementById('sound-btn').addEventListener('click', () => SoundManager.toggle());
-        document.getElementById('share-btn').addEventListener('click', () => this.share());
-        document.getElementById('rate-btn').addEventListener('click', () => this.rate());
+        document.getElementById('share-btn').addEventListener('click', () => game.share());
+        document.getElementById('rate-btn').addEventListener('click', () => game.rate());
     }
 
     // Share functionality

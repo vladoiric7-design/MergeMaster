@@ -10,5 +10,35 @@ service cloud.firestore {
       allow write: if request.auth != null
                    && request.resource.data.uid == request.auth.uid;
     }
+
+    match /daily_scores/{docId} {
+      // Anyone signed in can read daily scores
+      allow read: if request.auth != null;
+
+      // Users can only write their own daily scores
+      allow write: if request.auth != null
+                   && request.resource.data.uid == request.auth.uid;
+    }
+
+    match /challenges/{code} {
+      // Anyone signed in can read challenges
+      allow read: if request.auth != null;
+
+      // Anyone signed in can create a challenge
+      allow create: if request.auth != null
+                    && request.resource.data.createdBy == request.auth.uid;
+
+      // Anyone signed in can update a challenge (for joining)
+      allow update: if request.auth != null;
+
+      match /scores/{uid} {
+        // Anyone signed in can read challenge scores
+        allow read: if request.auth != null;
+
+        // Users can only write their own challenge scores
+        allow write: if request.auth != null
+                     && uid == request.auth.uid;
+      }
+    }
   }
 }

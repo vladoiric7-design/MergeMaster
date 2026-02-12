@@ -3,7 +3,7 @@
    For offline functionality
    ========================================== */
 
-const CACHE_NAME = 'merge-master-v22';
+const CACHE_NAME = 'merge-master-v26';
 const urlsToCache = [
     '/',
     '/index.html',

@@ -57,7 +57,21 @@
                 <button class="grid-option" data-size="8">8×8</button>
             </div>
 
-            <button class="btn btn-start" id="start-btn">START GAME</button>
+            <div class="mode-buttons">
+                <button class="btn btn-start" id="start-btn">START GAME</button>
+                <button class="btn btn-timeattack" id="timeattack-btn">TIME ATTACK ⏱</button>
+                <button class="btn btn-daily" id="daily-btn">
+                    DAILY CHALLENGE
+                    <span class="daily-info" id="daily-info"></span>
+                </button>
+            </div>
+
+            <div class="feature-buttons">
+                <button class="feature-btn" id="theme-btn">🎨 Themes</button>
+                <button class="feature-btn" id="achievements-btn">🏆 Achievements</button>
+                <button class="feature-btn" id="multiplayer-btn">⚔️ Multiplayer</button>
+                <button class="feature-btn" id="scores-home-btn">📊 Scores</button>
+            </div>
 
             <div class="start-footer">
                 <p>Swipe or use arrow keys to merge tiles</p>
@@ -84,6 +98,16 @@
                 </div>
             </div>
         </header>
+
+        <!-- Timer Display (Time Attack mode) -->
+        <div class="timer-display" id="timer-display">
+            <span class="timer-value" id="timer-value">60</span>
+        </div>
+
+        <!-- Target Score Display (Daily Challenge) -->
+        <div class="target-display" id="target-display">
+            Target: <strong id="target-score-value">0</strong>
+        </div>
 
         <!-- Action Buttons -->
         <div class="action-buttons">
@@ -137,7 +161,7 @@
             <!-- Game Over Overlay -->
             <div class="game-overlay" id="game-over">
                 <div class="overlay-content">
-                    <h2>Game Over!</h2>
+                    <h2 id="game-over-title">Game Over!</h2>
                     <p>Score: <span id="final-score">0</span></p>
                     <button class="btn" onclick="game.restart()">Try Again</button>
                     <button class="btn btn-secondary" onclick="game.backToMenu()">Menu</button>
@@ -226,6 +250,91 @@
                 <button class="btn btn-resume" id="resume-btn">Resume Game</button>
                 <button class="btn btn-secondary" id="resume-new-btn">New Game</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Theme Selection Modal -->
+    <div class="theme-modal" id="theme-modal">
+        <div class="theme-modal-content">
+            <h2>Choose Theme</h2>
+            <div class="theme-grid" id="theme-grid"></div>
+            <button class="theme-close" id="theme-close">Close</button>
+        </div>
+    </div>
+
+    <!-- Achievements Modal -->
+    <div class="achievements-modal" id="achievements-modal">
+        <div class="achievements-content">
+            <div class="achievements-header">
+                <h2>Achievements</h2>
+                <button class="achievements-close" id="achievements-close">&times;</button>
+            </div>
+            <div class="achievements-progress" id="achievements-progress">0 / 15 Unlocked</div>
+            <div class="achievements-grid" id="achievements-grid"></div>
+        </div>
+    </div>
+
+    <!-- Achievement Popup -->
+    <div class="achievement-popup" id="achievement-popup">
+        <span class="achievement-popup-icon" id="achievement-popup-icon"></span>
+        <div class="achievement-popup-text">
+            <span class="achievement-popup-label">Achievement Unlocked!</span>
+            <span class="achievement-popup-title" id="achievement-popup-title"></span>
+        </div>
+    </div>
+
+    <!-- Multiplayer Modal -->
+    <div class="multiplayer-modal" id="multiplayer-modal">
+        <div class="multiplayer-content" id="multiplayer-content">
+            <h2>Multiplayer</h2>
+            <p>Timed challenge! Both play the same grid and timer.</p>
+            <div class="mp-timer-pick">
+                <p style="font-size:0.85rem;margin-bottom:8px;color:var(--text-color);opacity:0.8;">Timer Duration:</p>
+                <div class="mp-timer-options">
+                    <button class="mp-timer-opt" data-seconds="30">30s</button>
+                    <button class="mp-timer-opt active" data-seconds="60">60s</button>
+                    <button class="mp-timer-opt" data-seconds="90">90s</button>
+                    <button class="mp-timer-opt" data-seconds="120">120s</button>
+                </div>
+            </div>
+            <div class="mp-actions">
+                <button class="btn" id="mp-create-btn">Create Room</button>
+                <div class="mp-divider">— or —</div>
+                <div class="mp-join-row">
+                    <input type="text" class="mp-code-input" id="mp-code-input" placeholder="CODE" maxlength="6">
+                    <button class="btn" id="mp-join-btn">Join</button>
+                </div>
+            </div>
+            <button class="mp-close" id="mp-close">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Multiplayer Waiting Overlay -->
+    <div class="mp-waiting-overlay" id="mp-waiting-overlay">
+        <div class="mp-waiting-content">
+            <h2 id="mp-waiting-title">Waiting...</h2>
+            <div class="mp-spinner"></div>
+            <p id="mp-waiting-text">Waiting for opponent to finish</p>
+            <button class="btn btn-secondary" id="mp-waiting-menu" style="margin-top:15px;">Back to Menu</button>
+        </div>
+    </div>
+
+    <!-- Multiplayer Results Overlay -->
+    <div class="mp-results-overlay" id="mp-results-overlay">
+        <div class="mp-results-content">
+            <h2 id="mp-result-title">Results</h2>
+            <div class="mp-scores-compare">
+                <div class="mp-player-score" id="mp-p1-score">
+                    <div class="mp-player-name" id="mp-p1-name">You</div>
+                    <div class="mp-player-points" id="mp-p1-points">0</div>
+                </div>
+                <div class="mp-vs">VS</div>
+                <div class="mp-player-score" id="mp-p2-score">
+                    <div class="mp-player-name" id="mp-p2-name">Opponent</div>
+                    <div class="mp-player-points" id="mp-p2-points">0</div>
+                </div>
+            </div>
+            <button class="btn" id="mp-results-menu">Back to Menu</button>
         </div>
     </div>
 
